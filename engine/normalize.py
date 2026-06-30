@@ -95,24 +95,256 @@ def normalize_phone(phone: Optional[str]) -> Optional[str]:
     return f"+{cleaned}"
 
 
+# ---------------------------------------------------------------------------
+# ITU-T E.164 country-code table: maps each calling code (as string, longest
+# match wins) to the typical local subscriber number length.  The local length
+# is used to split a full E.164 number into (country_code, local_number) so
+# that numbers entered with or without the country code resolve to the same
+# merge key.
+#
+# Format: { "calling_code_digits": local_subscriber_digits }
+# Where local_subscriber_digits is the most common length for that country.
+# ---------------------------------------------------------------------------
+COUNTRY_CODE_LOCAL_LENGTHS: Dict[str, int] = {
+    # 3-digit codes (checked first – longest match)
+    "355": 9,   # Albania
+    "213": 9,   # Algeria
+    "376": 6,   # Andorra
+    "244": 9,   # Angola
+    "374": 8,   # Armenia
+    "297": 7,   # Aruba
+    "994": 9,   # Azerbaijan
+    "973": 8,   # Bahrain
+    "880": 10,  # Bangladesh
+    "375": 9,   # Belarus
+    "501": 7,   # Belize
+    "229": 8,   # Benin
+    "975": 8,   # Bhutan
+    "591": 8,   # Bolivia
+    "387": 8,   # Bosnia
+    "267": 8,   # Botswana
+    "246": 7,   # British Indian Ocean
+    "673": 7,   # Brunei
+    "226": 8,   # Burkina Faso
+    "257": 8,   # Burundi
+    "855": 9,   # Cambodia
+    "237": 9,   # Cameroon
+    "238": 7,   # Cape Verde
+    "236": 8,   # Central African Republic
+    "235": 8,   # Chad
+    "682": 5,   # Cook Islands
+    "506": 8,   # Costa Rica
+    "385": 9,   # Croatia
+    "357": 8,   # Cyprus
+    "420": 9,   # Czech Republic
+    "243": 9,   # DR Congo
+    "253": 8,   # Djibouti
+    "670": 8,   # East Timor
+    "593": 9,   # Ecuador
+    "503": 8,   # El Salvador
+    "240": 9,   # Equatorial Guinea
+    "291": 7,   # Eritrea
+    "372": 8,   # Estonia
+    "251": 9,   # Ethiopia
+    "679": 7,   # Fiji
+    "358": 10,  # Finland
+    "241": 7,   # Gabon
+    "220": 7,   # Gambia
+    "995": 9,   # Georgia
+    "233": 9,   # Ghana
+    "350": 8,   # Gibraltar
+    "299": 6,   # Greenland
+    "502": 8,   # Guatemala
+    "224": 9,   # Guinea
+    "245": 9,   # Guinea-Bissau
+    "592": 7,   # Guyana
+    "509": 8,   # Haiti
+    "504": 8,   # Honduras
+    "852": 8,   # Hong Kong
+    "354": 7,   # Iceland
+    "964": 10,  # Iraq
+    "972": 9,   # Israel
+    "225": 10,  # Ivory Coast
+    "962": 9,   # Jordan
+    "254": 9,   # Kenya
+    "686": 8,   # Kiribati
+    "965": 8,   # Kuwait
+    "996": 9,   # Kyrgyzstan
+    "856": 9,   # Laos
+    "371": 8,   # Latvia
+    "961": 8,   # Lebanon
+    "266": 8,   # Lesotho
+    "231": 8,   # Liberia
+    "218": 9,   # Libya
+    "423": 7,   # Liechtenstein
+    "370": 8,   # Lithuania
+    "352": 9,   # Luxembourg
+    "853": 8,   # Macao
+    "261": 9,   # Madagascar
+    "265": 9,   # Malawi
+    "960": 7,   # Maldives
+    "223": 8,   # Mali
+    "356": 8,   # Malta
+    "692": 7,   # Marshall Islands
+    "222": 8,   # Mauritania
+    "230": 8,   # Mauritius
+    "691": 7,   # Micronesia
+    "373": 8,   # Moldova
+    "976": 8,   # Mongolia
+    "382": 8,   # Montenegro
+    "212": 9,   # Morocco
+    "258": 9,   # Mozambique
+    "264": 9,   # Namibia
+    "674": 7,   # Nauru
+    "977": 10,  # Nepal
+    "505": 8,   # Nicaragua
+    "227": 8,   # Niger
+    "234": 10,  # Nigeria
+    "850": 10,  # North Korea
+    "389": 8,   # North Macedonia
+    "968": 8,   # Oman
+    "680": 7,   # Palau
+    "970": 9,   # Palestine
+    "507": 8,   # Panama
+    "675": 8,   # Papua New Guinea
+    "595": 9,   # Paraguay
+    "51":  9,   # Peru
+    "63":  10,  # Philippines
+    "48":  9,   # Poland
+    "351": 9,   # Portugal
+    "974": 8,   # Qatar
+    "242": 9,   # Republic of Congo
+    "40":  10,  # Romania
+    "250": 9,   # Rwanda
+    "685": 7,   # Samoa
+    "239": 7,   # Sao Tome and Principe
+    "966": 9,   # Saudi Arabia
+    "221": 9,   # Senegal
+    "381": 9,   # Serbia
+    "232": 8,   # Sierra Leone
+    "421": 9,   # Slovakia
+    "386": 8,   # Slovenia
+    "677": 7,   # Solomon Islands
+    "252": 8,   # Somalia
+    "27":  9,   # South Africa
+    "211": 9,   # South Sudan
+    "94":  9,   # Sri Lanka
+    "249": 9,   # Sudan
+    "597": 7,   # Suriname
+    "268": 8,   # Swaziland
+    "963": 9,   # Syria
+    "886": 9,   # Taiwan
+    "992": 9,   # Tajikistan
+    "255": 9,   # Tanzania
+    "228": 8,   # Togo
+    "676": 7,   # Tonga
+    "868": 7,   # Trinidad and Tobago
+    "216": 8,   # Tunisia
+    "993": 8,   # Turkmenistan
+    "688": 5,   # Tuvalu
+    "256": 9,   # Uganda
+    "380": 9,   # Ukraine
+    "971": 9,   # UAE
+    "598": 8,   # Uruguay
+    "998": 9,   # Uzbekistan
+    "678": 7,   # Vanuatu
+    "58":  10,  # Venezuela
+    "967": 9,   # Yemen
+    "260": 9,   # Zambia
+    "263": 9,   # Zimbabwe
+    # 2-digit codes
+    "20":  10,  # Egypt
+    "30":  10,  # Greece
+    "31":  9,   # Netherlands
+    "32":  9,   # Belgium
+    "33":  9,   # France
+    "34":  9,   # Spain
+    "36":  9,   # Hungary
+    "39":  10,  # Italy
+    "41":  9,   # Switzerland
+    "43":  10,  # Austria
+    "44":  10,  # UK
+    "45":  8,   # Denmark
+    "46":  9,   # Sweden
+    "47":  8,   # Norway
+    "49":  10,  # Germany
+    "52":  10,  # Mexico
+    "53":  8,   # Cuba
+    "54":  10,  # Argentina
+    "55":  11,  # Brazil
+    "56":  9,   # Chile
+    "57":  10,  # Colombia
+    "60":  9,   # Malaysia
+    "61":  9,   # Australia
+    "62":  10,  # Indonesia
+    "64":  9,   # New Zealand
+    "65":  8,   # Singapore
+    "66":  9,   # Thailand
+    "7":   10,  # Russia/Kazakhstan
+    "81":  10,  # Japan
+    "82":  10,  # South Korea
+    "84":  9,   # Vietnam
+    "86":  11,  # China
+    "90":  10,  # Turkey
+    "91":  10,  # India  ← default
+    "92":  10,  # Pakistan
+    "93":  9,   # Afghanistan
+    "95":  9,   # Myanmar
+    "98":  10,  # Iran
+    # 1-digit NANP (North America +1)
+    "1":   10,  # USA / Canada / Caribbean
+}
+
+# Pre-sort codes longest-first so we always try the most-specific match first
+_SORTED_CODES = sorted(COUNTRY_CODE_LOCAL_LENGTHS.keys(), key=len, reverse=True)
+
+
+def _split_e164(e164: str):
+    """
+    Given a fully qualified E.164 string (starts with '+'), return
+    (country_code, local_number) or (None, None) if no match is found.
+    """
+    digits = e164.lstrip('+')
+    for code in _SORTED_CODES:
+        if digits.startswith(code):
+            local = digits[len(code):]
+            expected_len = COUNTRY_CODE_LOCAL_LENGTHS[code]
+            # Accept if the local part length is within ±1 of the expected
+            # length (some countries have variable-length subscriber numbers)
+            if abs(len(local) - expected_len) <= 1:
+                return code, local
+    return None, None
+
+
 def normalize_phone_for_merge(phone: Optional[str]) -> Optional[str]:
     """
-    Returns a bare 10-digit merge key for Indian mobile numbers by stripping
-    the +91 country code. This ensures that +919876543210, 9876543210 and
-    09876543210 all hash to the same merge key during candidate deduplication.
+    Returns a country-code-agnostic merge key for deduplication.
 
-    For non-Indian numbers (different country code) the full E.164 string is
-    returned unchanged so they still deduplicate correctly within their own
-    country code space.
+    The key is  "<calling_code>:<local_subscriber_number>"  so that all
+    representations of the same physical number collapse to one key:
+
+        +919876543210   ->  "91:9876543210"
+        9876543210      ->  "91:9876543210"   (defaulted to +91)
+        09876543210     ->  "91:9876543210"   (trunk prefix stripped)
+
+        +447911123456   ->  "44:7911123456"
+        07911123456     ->  "44:7911123456"   (UK trunk prefix, defaulted to +44
+                                               only if the user has a UK source)
+
+        +15550192834    ->  "1:5550192834"
+
+    If the country code cannot be identified the full E.164 string is used
+    as the key so the number still deduplicates with an exact match.
     """
     e164 = normalize_phone(phone)
     if not e164:
         return None
 
-    # Strip +91 prefix to get bare 10-digit key
-    if e164.startswith(f"+{DEFAULT_COUNTRY_CODE}") and len(e164) == 13:  # +91 + 10 digits
-        return e164[3:]  # drop '+91'
+    code, local = _split_e164(e164)
+    if code and local:
+        return f"{code}:{local}"
 
+    # Unknown country code — fall back to full E.164 for exact-match dedup
     return e164
 
 def normalize_date(date_val: Optional[Any]) -> Optional[str]:

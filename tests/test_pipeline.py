@@ -29,17 +29,37 @@ def test_phone_normalization():
     assert normalize_phone("") is None
 
 
+
 def test_phone_merge_key():
-    """All three common representations of the same Indian mobile number
-    must resolve to the same bare 10-digit merge key."""
-    expected = "9876543210"
-    assert normalize_phone_for_merge("+91 9876543210") == expected
-    assert normalize_phone_for_merge("9876543210") == expected
-    assert normalize_phone_for_merge("09876543210") == expected
-    assert normalize_phone_for_merge("919876543210") == expected
-    # Non-Indian numbers should NOT be stripped
-    assert normalize_phone_for_merge("+1 555 019 2834") == "+15550192834"
+    """All representations of the same physical number must resolve to the
+    same merge key regardless of how the country code is expressed."""
+
+    # --- India (+91) ---
+    assert normalize_phone_for_merge("+91 9876543210") == "91:9876543210"
+    assert normalize_phone_for_merge("9876543210")     == "91:9876543210"  # bare → default India
+    assert normalize_phone_for_merge("09876543210")    == "91:9876543210"  # trunk prefix
+    assert normalize_phone_for_merge("919876543210")   == "91:9876543210"  # CC without +
+
+    # --- UK (+44) ---
+    assert normalize_phone_for_merge("+44 7911 123456") == "44:7911123456"
+
+    # --- USA (+1) ---
+    assert normalize_phone_for_merge("+1 555 019 2834") == "1:5550192834"
+
+    # --- UAE (+971) ---
+    assert normalize_phone_for_merge("+971 50 123 4567") == "971:501234567"
+
+    # --- Germany (+49) ---
+    assert normalize_phone_for_merge("+49 151 23456789") == "49:15123456789"
+
+    # --- Singapore (+65) ---
+    assert normalize_phone_for_merge("+65 9123 4567") == "65:91234567"
+
+    # --- Edge cases ---
     assert normalize_phone_for_merge(None) is None
+    assert normalize_phone_for_merge("") is None
+
+
 
 def test_date_normalization():
     assert normalize_date("June 2020") == "2020-06"
