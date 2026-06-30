@@ -56,34 +56,64 @@ MONTHS = {
     "dec": "12", "december": "12"
 }
 
+# Default country code for India
+DEFAULT_COUNTRY_CODE = "91"
+
 def normalize_phone(phone: Optional[str]) -> Optional[str]:
     """
     Normalizes a phone number to E.164 format (+[country_code][digits]).
-    If no country code, defaults to +1 (US).
+    Defaults to +91 (India) for bare 10-digit numbers or numbers with a
+    leading 0 (e.g. 09876543210 -> +919876543210).
     """
     if not phone:
         return None
-        
+
     phone_str = str(phone).strip()
     # Strip everything except + and digits
     cleaned = re.sub(r'[^\d+]', '', phone_str)
-    
+
     if not cleaned:
         return None
-        
-    # Check if starts with +
+
+    # Already has explicit country code
     if cleaned.startswith('+'):
         return cleaned
-        
-    # Heuristics: if length is 10, assume US/CA (+1)
+
+    # Indian trunk prefix: leading 0 followed by 10 digits (e.g. 09876543210)
+    if len(cleaned) == 11 and cleaned.startswith('0'):
+        return f"+{DEFAULT_COUNTRY_CODE}{cleaned[1:]}"
+
+    # Bare 10-digit mobile number — assume India
     if len(cleaned) == 10:
-        return f"+1{cleaned}"
-    # If it is 11 and starts with 1, prepend +
-    if len(cleaned) == 11 and cleaned.startswith('1'):
+        return f"+{DEFAULT_COUNTRY_CODE}{cleaned}"
+
+    # 12-digit number starting with 91 — already has India code without +
+    if len(cleaned) == 12 and cleaned.startswith('91'):
         return f"+{cleaned}"
-        
-    # Otherwise just return with leading +
+
+    # Fallback: just prepend +
     return f"+{cleaned}"
+
+
+def normalize_phone_for_merge(phone: Optional[str]) -> Optional[str]:
+    """
+    Returns a bare 10-digit merge key for Indian mobile numbers by stripping
+    the +91 country code. This ensures that +919876543210, 9876543210 and
+    09876543210 all hash to the same merge key during candidate deduplication.
+
+    For non-Indian numbers (different country code) the full E.164 string is
+    returned unchanged so they still deduplicate correctly within their own
+    country code space.
+    """
+    e164 = normalize_phone(phone)
+    if not e164:
+        return None
+
+    # Strip +91 prefix to get bare 10-digit key
+    if e164.startswith(f"+{DEFAULT_COUNTRY_CODE}") and len(e164) == 13:  # +91 + 10 digits
+        return e164[3:]  # drop '+91'
+
+    return e164
 
 def normalize_date(date_val: Optional[Any]) -> Optional[str]:
     """

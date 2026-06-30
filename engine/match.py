@@ -1,5 +1,5 @@
 from typing import List, Dict, Set, Optional, Tuple, Any
-from engine.normalize import normalize_phone
+from engine.normalize import normalize_phone, normalize_phone_for_merge
 
 class MatchStrategy:
     def __init__(self):
@@ -21,7 +21,7 @@ class MatchStrategy:
         """
         # Normalize inputs for matching
         norm_emails = [e.strip().lower() for e in emails if e and e.strip()]
-        norm_phones = [normalize_phone(p) for p in phones if p]
+        norm_phones = [normalize_phone_for_merge(p) for p in phones if p]
         norm_phones = [p for p in norm_phones if p]
 
         # 1. Primary: Match by email (case-insensitive)

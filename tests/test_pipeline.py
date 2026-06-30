@@ -4,7 +4,7 @@ import pytest
 from ingestion.base import RawRecord
 from ingestion.csv_adapter import CSVAdapter
 from ingestion.ats_json_adapter import ATSJsonAdapter
-from engine.normalize import normalize_phone, normalize_date, normalize_country, normalize_skill
+from engine.normalize import normalize_phone, normalize_phone_for_merge, normalize_date, normalize_country, normalize_skill
 from engine.match import MatchStrategy
 from engine.merge import ProfileMerger
 from engine.confidence import compute_overall_confidence
@@ -15,11 +15,31 @@ from projection.validate import validate_projected_output
 # ----------------- 1. Normalization Tests -----------------
 
 def test_phone_normalization():
+    # Numbers with explicit country codes pass through unchanged
+    assert normalize_phone("+91 98765 43210") == "+919876543210"
     assert normalize_phone("+1 (555) 019-2834") == "+15550192834"
-    assert normalize_phone("5551234567") == "+15551234567"
     assert normalize_phone("+44 7911 123456") == "+447911123456"
+    # Bare 10-digit number -> default India (+91)
+    assert normalize_phone("9876543210") == "+919876543210"
+    # Indian trunk prefix (leading 0) -> strip 0 and add +91
+    assert normalize_phone("09876543210") == "+919876543210"
+    # 12-digit starting with 91 (no +) -> add +
+    assert normalize_phone("919876543210") == "+919876543210"
     assert normalize_phone(None) is None
     assert normalize_phone("") is None
+
+
+def test_phone_merge_key():
+    """All three common representations of the same Indian mobile number
+    must resolve to the same bare 10-digit merge key."""
+    expected = "9876543210"
+    assert normalize_phone_for_merge("+91 9876543210") == expected
+    assert normalize_phone_for_merge("9876543210") == expected
+    assert normalize_phone_for_merge("09876543210") == expected
+    assert normalize_phone_for_merge("919876543210") == expected
+    # Non-Indian numbers should NOT be stripped
+    assert normalize_phone_for_merge("+1 555 019 2834") == "+15550192834"
+    assert normalize_phone_for_merge(None) is None
 
 def test_date_normalization():
     assert normalize_date("June 2020") == "2020-06"
