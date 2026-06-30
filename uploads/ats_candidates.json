@@ -1,0 +1,37 @@
+[
+  {
+    "candidate_name": "Alice Smith",
+    "primary_email": "alice@example.com",
+    "cell_phone": "+1 555-019-2834",
+    "headline": "CS student at Stanford",
+    "total_experience": 1.5,
+    "location": {"city": "Palo Alto", "region": "CA", "country": "United States"},
+    "skills": ["Python", "JS", "C++"],
+    "experience_history": [
+      {
+        "company": "Google",
+        "role": "SWE Intern",
+        "start_date": "2025-06",
+        "end_date": "2025-09",
+        "description": "Worked on Google Search infrastructure."
+      }
+    ]
+  },
+  {
+    "candidate_name": "Bob Johnson",
+    "primary_email": "bob@example.com",
+    "cell_phone": "555-987-6543",
+    "headline": "React Enthusiast",
+    "total_experience": 2.0,
+    "skills": ["JavaScript", "React", "HTML5"],
+    "experience_history": [
+      {
+        "company": "Meta",
+        "role": "Frontend Intern",
+        "start_date": "2024-05",
+        "end_date": "2024-08",
+        "description": "Implemented design systems in React."
+      }
+    ]
+  }
+]

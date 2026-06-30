@@ -1,0 +1,5 @@
+name,email,phone,current_company,title
+Alice Smith,alice@example.com,+1 (555) 019-2834,Google,Software Engineer Intern
+Bob Johnson,,555-987-6543,Meta,Frontend Developer
+Charlie Brown,charlie@example.com,,Amazon,Backend Engineer
+Kanna Bear,Kanna@example.com,,Kanna,Backend Engineer

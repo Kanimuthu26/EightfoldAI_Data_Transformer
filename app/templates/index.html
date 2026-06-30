@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Data Unification Pipeline</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-color: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --font-outfit: 'Outfit', sans-serif;
+            --font-inter: 'Inter', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            --sidebar-width: 320px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-inter);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        header {
+            border-bottom: 1px solid var(--card-border);
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+            padding: 0.5rem;
+            border-radius: 12px;
+            box-shadow: 0 0 15px var(--accent-glow);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            font-family: var(--font-outfit);
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-title {
+            font-family: var(--font-outfit);
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-family: var(--font-inter);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Drop Zone */
+        .dropzone {
+            border: 2px dashed var(--card-border);
+            border-radius: 12px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--accent-color);
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        .dropzone-icon {
+            color: var(--text-secondary);
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .dropzone:hover .dropzone-icon {
+            color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+
+        .dropzone.loading {
+            pointer-events: none;
+            justify-content: center;
+            background: rgba(99, 102, 241, 0.02);
+            border-color: rgba(99, 102, 241, 0.3);
+            min-height: 180px;
+        }
+
+        .ai-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(99, 102, 241, 0.1);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text-glow {
+            font-size: 0.95rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #a5b4fc, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            font-family: var(--font-outfit);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:hover {
+            background: #4f46e5;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            box-shadow: none;
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: none;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.05rem;
+            border-radius: 12px;
+        }
+
+        .btn-gradient:hover:not(:disabled) {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        }
+
+        .btn:disabled, .btn-gradient:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Source List */
+        .source-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 230px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            padding-right: 0.25rem;
+        }
+
+        .source-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .source-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .source-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+        }
+
+        .source-remove {
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .source-remove:hover {
+            color: var(--danger-color);
+        }
+
+        /* Priority selector */
+        .priority-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .priority-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .priority-controls {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .priority-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.2rem;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .priority-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        /* Pipeline Flow Map */
+        .pipeline-flow {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem;
+            background: rgba(17, 24, 39, 0.4);
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 1rem;
+        }
+
+        .pipeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            position: relative;
+            flex: 1;
+        }
+
+        .pipeline-step.active {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .pipeline-step.active .step-dot {
+            background: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-glow);
+            animation: pulse 1.5s infinite;
+        }
+
+        .pipeline-step.completed {
+            color: var(--success-color);
+        }
+
+        .pipeline-step.completed .step-dot {
+            background: var(--success-color);
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--card-border);
+            transition: background 0.3s;
+        }
+
+        .pipeline-line {
+            height: 2px;
+            background: var(--card-border);
+            flex-grow: 1;
+            margin: 0 -1.5rem;
+            position: relative;
+            top: -12px;
+            z-index: -1;
+        }
+
+        .pipeline-line.completed {
+            background: var(--success-color);
+        }
+
+        /* Candidate Table */
+        .candidate-card {
+            grid-column: 1 / -1;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            padding: 0.85rem 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--card-border);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .cand-name {
+            font-weight: 600;
+            font-family: var(--font-outfit);
+            color: var(--text-primary);
+        }
+
+        .badge-confidence {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .badge-confidence.low {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
+
+        .action-link {
+            color: var(--accent-color);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .action-link:hover {
+            color: #8b5cf6;
+            text-decoration: underline;
+        }
+
+        /* JSON Projector Section */
+        .projector-grid {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .projector-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .config-editor-pane {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .template-picker {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .template-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .template-btn:hover, .template-btn.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        textarea.code-editor {
+            flex-grow: 1;
+            min-height: 250px;
+            background: #080c14;
+            color: #e2e8f0;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+        }
+
+        textarea.code-editor:focus {
+            border-color: var(--accent-color);
+        }
+
+        .output-viewer-pane {
+            display: flex;
+            flex-direction: column;
+            background: #080c14;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 350px;
+        }
+
+        .viewer-header {
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--card-border);
+            padding: 0.6rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .viewer-title {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+
+        .viewer-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-display {
+            padding: 1rem;
+            margin: 0;
+            overflow-y: auto;
+            max-height: 420px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #34d399;
+            background: #05070b;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: var(--bg-color);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-family: var(--font-outfit);
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: white;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+            }
+        }
+
+        /* Toast feedback */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <i data-lucide="merge"></i>
+                </div>
+                <div>
+                    <h1>Candidate Data Unification</h1>
+                    <p class="header-subtitle">Eightfold Intern Assignment Engine</p>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="/api/candidates" target="_blank" class="action-link" style="font-size: 0.85rem;">
+                    <i data-lucide="database"></i> Raw Store Endpoint
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        
+        <div class="dashboard-grid">
+            
+            <!-- Ingestion Panel -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i data-lucide="upload-cloud" style="color: var(--accent-color);"></i> Ingest Data Sources
+                    </h2>
+                </div>
+                
+                <div class="dropzone" id="fileDropzone">
+                    <i data-lucide="file-text" class="dropzone-icon" style="width: 48px; height: 48px;"></i>
+                    <p style="font-weight: 500;">Drag & Drop Source Files Here</p>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">CSV, JSON (ATS), TXT (Notes), PDF or DOCX (Resumes)</p>
+                    <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()" style="margin-top: 0.5rem;">
+                        Browse Files
+                    </button>
+                    <input type="file" id="fileInput" style="display: none;" multiple>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label class="form-label">Ingest Profile URL (GitHub / LinkedIn)</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="url" id="urlInput" class="form-input" placeholder="https://github.com/username or https://linkedin.com/in/username">
+                        <button class="btn" onclick="ingestUrl()">Ingest URL</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ingested Sources & Priority Panel -->
+            <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i data-lucide="layers" style="color: var(--success-color);"></i> Raw Ingested Sources
+                        </h2>
+                        <span id="sourceCount" style="font-size: 0.8rem; color: var(--text-secondary);">0 loaded</span>
+                    </div>
+
+                    <div class="source-list" id="sourceList">
+                        <div style="color: var(--text-secondary); text-align: center; padding: 2rem; font-size: 0.9rem;">
+                            No sources ingested yet. Upload files or paste URLs.
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="form-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span>Source Priority Conflict Resolution Order</span>
+                        <span style="font-size: 0.75rem; font-style: italic;">ATS > CSV > Resume > Notes</span>
+                    </div>
+                    <div class="priority-list" id="priorityList">
+                        <!-- Rendered dynamically by renderPriorityList() -->
+                    </div>
+
+                    <button class="btn btn-gradient" id="btnRunPipeline" onclick="runPipeline()" disabled>
+                        <i data-lucide="play-circle"></i> Run Unification Pipeline
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pipeline Progress Map -->
+            <div class="pipeline-flow">
+                <div class="pipeline-step" id="step-ingest">
+                    <div class="step-dot"></div>
+                    <span>Ingestion</span>
+                </div>
+                <div class="pipeline-line" id="line-1"></div>
+                <div class="pipeline-step" id="step-normalize">
+                    <div class="step-dot"></div>
+                    <span>Normalization</span>
+                </div>
+                <div class="pipeline-line" id="line-2"></div>
+                <div class="pipeline-step" id="step-match">
+                    <div class="step-dot"></div>
+                    <span>Match Indexing</span>
+                </div>
+                <div class="pipeline-line" id="line-3"></div>
+                <div class="pipeline-step" id="step-merge">
+                    <div class="step-dot"></div>
+                    <span>Merge (Priority)</span>
+                </div>
+                <div class="pipeline-line" id="line-4"></div>
+                <div class="pipeline-step" id="step-confidence">
+                    <div class="step-dot"></div>
+                    <span>Confidence Scoring</span>
+                </div>
+            </div>
+
+            <!-- Candidate Explorer -->
+            <div class="glass-card candidate-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i data-lucide="users" style="color: var(--accent-color);"></i> Unified Candidate Profiles
+                    </h2>
+                    <span id="candidateCount" class="source-badge">0 candidates</span>
+                </div>
+
+                <div class="table-container">
+                    <table id="candidateTable">
+                        <thead>
+                            <tr>
+                                <th>Candidate ID</th>
+                                <th>Full Name</th>
+                                <th>Email Contacts</th>
+                                <th>Phone Contacts</th>
+                                <th>Years Exp</th>
+                                <th>Confidence</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                                    Unification pipeline has not been executed yet. Ingest sources and hit 'Run Pipeline'.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Projection View Controller -->
+            <div class="glass-card candidate-card" style="margin-top: 1rem;">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i data-lucide="sliders" style="color: #8b5cf6;"></i> Layer 3: Dynamic Projection & Schema Verification
+                    </h2>
+                </div>
+
+                <div class="projector-grid">
+                    <div class="config-editor-pane">
+                        <div class="form-label">Select Projection View Template:</div>
+                        <div class="template-picker">
+                            <button class="template-btn active" data-template="full" onclick="loadTemplate('full', this)">Full View</button>
+                            <button class="template-btn" data-template="skills" onclick="loadTemplate('skills', this)">Developer Skills Matrix</button>
+                            <button class="template-btn" data-template="contact" onclick="loadTemplate('contact', this)">Simple Contact Directory</button>
+                        </div>
+                        <label class="form-label" style="margin-top: 0.5rem;">Edit Runtime Projection Config (JSON):</label>
+                        <textarea class="code-editor" id="configEditor" spellcheck="false"></textarea>
+                        <button class="btn" style="width: 100%; font-size: 1rem;" onclick="generateProjection()">
+                            <i data-lucide="sparkles"></i> Project & Validate Output
+                        </button>
+                    </div>
+
+                    <div class="output-viewer-pane">
+                        <div class="viewer-header">
+                            <span class="viewer-title">PROJECTED_VALIDATED_OUTPUT.json</span>
+                            <div class="viewer-actions">
+                                <button class="template-btn" onclick="copyProjected()"><i data-lucide="copy" style="width:14px; display:inline; vertical-align:middle;"></i> Copy</button>
+                                <button class="template-btn" onclick="downloadProjected()"><i data-lucide="download" style="width:14px; display:inline; vertical-align:middle;"></i> Download</button>
+                            </div>
+                        </div>
+                        <pre class="code-display" id="projectedCode">Run the projector to preview unified configuration outputs here...</pre>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Details modal -->
+    <div class="modal" id="detailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Candidate Canonical Record Debugger</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <pre id="modalJsonDisplay" style="background:#06080e; padding:1.5rem; border-radius:8px; border: 1px solid var(--card-border); color: #34d399; font-family: var(--font-mono); font-size:0.85rem; overflow:auto; max-height: 60vh;"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toastFeedback">
+        <i data-lucide="check-circle" style="color:var(--success-color);"></i>
+        <span id="toastMessage">Success</span>
+    </div>
+
+    <script>
+        // Ingestion State
+        let ingestedSources = [];
+        let candidatesList = [];
+
+        // Priority resolution sorting
+        let priorityOrder = ["ATS JSON", "Recruiter CSV", "Resume", "Recruiter Notes"];
+
+        // Projection Config Templates — must be declared before init() IIFE calls loadTemplate()
+        const templates = {
+            full: {
+                fields: [
+                    { path: "candidate_id", type: "string", required: true },
+                    { path: "full_name", type: "string" },
+                    { path: "emails", type: "string[]" },
+                    { path: "phones", type: "string[]" },
+                    { path: "linkedin", from: "links.linkedin", type: "string" },
+                    { path: "github", from: "links.github", type: "string" },
+                    { path: "headline", type: "string" },
+                    { path: "skills", from: "skills[].name", type: "string[]" },
+                    { path: "years_experience", type: "number" }
+                ],
+                include_confidence: true,
+                include_provenance: true,
+                on_missing: "null"
+            },
+            skills: {
+                fields: [
+                    { path: "developer_name", from: "full_name", type: "string" },
+                    { path: "primary_email", from: "emails[0]", type: "string" },
+                    { path: "skills_uppercase", from: "skills[].name", type: "string[]", normalize: "upper" },
+                    { path: "years_experience", type: "number" }
+                ],
+                include_confidence: true,
+                on_missing: "omit"
+            },
+            contact: {
+                fields: [
+                    { path: "name", from: "full_name", type: "string", required: true },
+                    { path: "email", from: "emails[0]", type: "string", normalize: "lower" },
+                    { path: "phone", from: "phones[0]", type: "string", normalize: "E.164" },
+                    { path: "location_country", from: "location.country", type: "string" }
+                ],
+                include_confidence: false,
+                on_missing: "null"
+            }
+        };
+
+        // Script is at bottom of <body> — DOM is already ready, run init directly
+        (function init() {
+            // Init lucide icons
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            // Dropzone listeners
+            const dropzone = document.getElementById('fileDropzone');
+            const fileInput = document.getElementById('fileInput');
+
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('dragover');
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            // Init panel state
+            renderPriorityList();
+            loadTemplate('full');
+            checkPipelineStatus();
+        })();
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toastFeedback');
+            const msgEl = document.getElementById('toastMessage');
+            msgEl.textContent = msg;
+
+            // Rebuild icon — lucide replaces <i> with <svg> so we inject fresh markup
+            const iconName = isError ? 'alert-circle' : 'check-circle';
+            const iconColor = isError ? 'var(--danger-color)' : 'var(--success-color)';
+            const borderColor = isError ? 'var(--danger-color)' : 'var(--accent-color)';
+            toast.style.borderColor = borderColor;
+            // Replace first child (icon slot) with a fresh <i>
+            const existingIcon = toast.querySelector('i, svg');
+            if (existingIcon) existingIcon.remove();
+            const newIcon = document.createElement('i');
+            newIcon.setAttribute('data-lucide', iconName);
+            newIcon.style.color = iconColor;
+            toast.insertBefore(newIcon, toast.firstChild);
+            lucide.createIcons();
+
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function movePriority(item, dir) {
+            const idx = priorityOrder.indexOf(item);
+            if (idx === -1) return;
+            const targetIdx = idx + dir;
+            if (targetIdx < 0 || targetIdx >= priorityOrder.length) return;
+
+            // Swap
+            priorityOrder[idx] = priorityOrder[targetIdx];
+            priorityOrder[targetIdx] = item;
+            
+            renderPriorityList();
+        }
+
+        function renderPriorityList() {
+            const container = document.getElementById('priorityList');
+            container.innerHTML = '';
+            priorityOrder.forEach(item => {
+                container.innerHTML += `
+                    <div class="priority-item" data-source="${item}">
+                        <span>${item}</span>
+                        <div class="priority-controls">
+                            <button class="priority-btn" onclick="movePriority('${item}', -1)"><i data-lucide="chevron-up" style="width:16px;"></i></button>
+                            <button class="priority-btn" onclick="movePriority('${item}', 1)"><i data-lucide="chevron-down" style="width:16px;"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // Handles uploading multiple files sequentially
+        async function handleFiles(files) {
+            if (files.length === 0) return;
+            toggleDropzoneLoading(true, "Parsing using AI & extracting info...");
+            
+            for (let i = 0; i < files.length; i++) {
+                const formData = new FormData();
+                formData.append('file', files[i]);
+
+                try {
+                    const response = await fetch('/api/ingest', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const res = await response.json();
+                    
+                    if (res.success) {
+                        // Deduplicate: remove old card if same file re-uploaded
+                        registerSource(res);
+                        showToast(`✓ Re-ingested: ${res.filename_or_url}` );
+                    } else {
+                        showToast(`Ingestion failed: ${res.error}`, true);
+                    }
+                } catch (err) {
+                    showToast(`Network error: ${err.message}`, true);
+                }
+            }
+            toggleDropzoneLoading(false);
+            checkPipelineStatus();
+        }
+
+        // Handle URL ingestion
+        async function ingestUrl() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            toggleDropzoneLoading(true, "Extracting URL info with AI...");
+
+            try {
+                const response = await fetch('/api/ingest', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ url: url })
+                });
+                const res = await response.json();
+                
+                if (res.success) {
+                    registerSource(res);
+                    urlInput.value = '';
+                    showToast(`✓ Ingested URL: ${res.filename_or_url}`);
+                } else {
+                    showToast(`Failed: ${res.error}`, true);
+                }
+            } catch (err) {
+                showToast(`Network error: ${err.message}`, true);
+            }
+            toggleDropzoneLoading(false);
+            checkPipelineStatus();
+        }
+
+        // Stores the original inner HTML of the dropzone to restore it later
+        let originalDropzoneHTML = "";
+
+        function toggleDropzoneLoading(isLoading, message = "Processing with AI...") {
+            const dropzone = document.getElementById('fileDropzone');
+            if (isLoading) {
+                if (!originalDropzoneHTML) {
+                    originalDropzoneHTML = dropzone.innerHTML;
+                }
+                dropzone.classList.add('loading');
+                dropzone.innerHTML = `
+                    <div class="ai-spinner"></div>
+                    <div class="loading-text-glow">${message}</div>
+                    <div style="font-size:0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">This may take a few moments for LlamaParse & Mistral AI</div>
+                `;
+            } else {
+                dropzone.classList.remove('loading');
+                if (originalDropzoneHTML) {
+                    dropzone.innerHTML = originalDropzoneHTML;
+                }
+            }
+        }
+
+        // Registers a source: replaces existing entry if same path, otherwise appends.
+        function registerSource(source) {
+            const existingIndex = ingestedSources.indexOf(source.filepath_or_url);
+            if (existingIndex !== -1) {
+                // Remove old DOM card for this source
+                const container = document.getElementById('sourceList');
+                const cards = container.querySelectorAll('.source-item');
+                if (cards[existingIndex]) cards[existingIndex].remove();
+                // Replace in array
+                ingestedSources[existingIndex] = source.filepath_or_url;
+            } else {
+                ingestedSources.push(source.filepath_or_url);
+            }
+            addSourceToView(source);
+        }
+
+        function addSourceToView(source) {
+            const container = document.getElementById('sourceList');
+
+            // Only remove the "no sources" placeholder if no real cards exist yet
+            if (container.querySelectorAll('.source-item').length === 0) {
+                container.innerHTML = '';
+            }
+
+            const item = document.createElement('div');
+            item.className = 'source-item';
+            item.setAttribute('data-path', source.filepath_or_url);
+            item.innerHTML = `
+                <div class="source-info">
+                    <i data-lucide="file-check" style="color: var(--success-color); width: 18px;"></i>
+                    <span style="font-weight: 500;">${source.filename_or_url}</span>
+                    <span class="source-badge">${source.adapter}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap: 0.5rem;">
+                    <span style="font-size:0.8rem; color: var(--text-secondary);">${source.candidates_count} candidate${source.candidates_count !== 1 ? 's' : ''}</span>
+                    <i data-lucide="trash-2" class="source-remove" onclick="removeSource(this, '${source.filepath_or_url}')"></i>
+                </div>
+            `;
+            container.appendChild(item);
+
+            document.getElementById('sourceCount').textContent = `${ingestedSources.length} loaded`;
+            lucide.createIcons();
+        }
+
+        function removeSource(el, path) {
+            ingestedSources = ingestedSources.filter(s => s !== path);
+            el.closest('.source-item').remove();
+            document.getElementById('sourceCount').textContent = `${ingestedSources.length} loaded`;
+            
+            if (ingestedSources.length === 0) {
+                document.getElementById('sourceList').innerHTML = `
+                    <div style="color: var(--text-secondary); text-align: center; padding: 2rem; font-size: 0.9rem;">
+                        No sources ingested yet. Upload files or paste URLs.
+                    </div>
+                `;
+            }
+            checkPipelineStatus();
+        }
+
+        function checkPipelineStatus() {
+            document.getElementById('btnRunPipeline').disabled = ingestedSources.length === 0;
+        }
+
+        // Run entire pipeline
+        async function runPipeline() {
+            const btn = document.getElementById('btnRunPipeline');
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader" class="animate-spin"></i> Executing Pipeline...`;
+            
+            // Reset and animate steps
+            resetFlowSteps();
+            
+            try {
+                // Ingest state
+                setStepActive('step-ingest');
+                await sleep(500);
+                setStepCompleted('step-ingest', 'line-1');
+                
+                // Normalization state
+                setStepActive('step-normalize');
+                await sleep(500);
+                setStepCompleted('step-normalize', 'line-2');
+                
+                // Match indexing
+                setStepActive('step-match');
+                await sleep(600);
+                setStepCompleted('step-match', 'line-3');
+                
+                // Merge state
+                setStepActive('step-merge');
+                await sleep(500);
+                setStepCompleted('step-merge', 'line-4');
+                
+                // Confidence scoring
+                setStepActive('step-confidence');
+
+                const response = await fetch('/api/run-pipeline', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        inputs: ingestedSources,
+                        priority_list: priorityOrder
+                    })
+                });
+                const res = await response.json();
+                
+                if (res.success) {
+                    setStepCompleted('step-confidence');
+                    candidatesList = res.candidates;
+                    renderCandidates(res.candidates);
+                    showToast(`Pipeline execution complete! Created ${res.candidates_count} profiles.`);
+                } else {
+                    showToast(`Pipeline failed: ${res.error}`, true);
+                    resetFlowSteps();
+                }
+            } catch (err) {
+                showToast(`Pipeline failed: ${err.message}`, true);
+                resetFlowSteps();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="play-circle"></i> Run Unification Pipeline`;
+                lucide.createIcons();
+            }
+        }
+
+        function resetFlowSteps() {
+            ['step-ingest', 'step-normalize', 'step-match', 'step-merge', 'step-confidence'].forEach(id => {
+                document.getElementById(id).className = 'pipeline-step';
+            });
+            ['line-1', 'line-2', 'line-3', 'line-4'].forEach(id => {
+                document.getElementById(id).className = 'pipeline-line';
+            });
+        }
+
+        function setStepActive(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function setStepCompleted(id, lineId) {
+            const el = document.getElementById(id);
+            el.classList.remove('active');
+            el.classList.add('completed');
+            if (lineId) {
+                document.getElementById(lineId).classList.add('completed');
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function renderCandidates(candidates) {
+            const body = document.querySelector('#candidateTable tbody');
+            body.innerHTML = '';
+            
+            if (candidates.length === 0) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                            No candidates found after merging.
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('candidateCount').textContent = '0 candidates';
+                return;
+            }
+
+            document.getElementById('candidateCount').textContent = `${candidates.length} unified`;
+
+            candidates.forEach(c => {
+                const tr = document.createElement('tr');
+                
+                // Formats emails and phones
+                const emailStr = c.emails && c.emails.length > 0 ? c.emails.join(', ') : '<span style="color:var(--text-secondary)">null</span>';
+                const phoneStr = c.phones && c.phones.length > 0 ? c.phones.join(', ') : '<span style="color:var(--text-secondary)">null</span>';
+                const yoeStr = c.years_experience !== null ? c.years_experience : '0';
+                
+                const confClass = c.overall_confidence < 0.7 ? 'badge-confidence low' : 'badge-confidence';
+                
+                tr.innerHTML = `
+                    <td><code style="font-family:var(--font-mono); font-size:0.8rem;">${c.candidate_id}</code></td>
+                    <td><span class="cand-name">${c.full_name || 'Anonymous'}</span></td>
+                    <td>${emailStr}</td>
+                    <td>${phoneStr}</td>
+                    <td style="font-weight: 500;">${yoeStr} yrs</td>
+                    <td><span class="${confClass}"><i data-lucide="shield-check" style="width:14px;"></i> ${Math.round(c.overall_confidence * 100)}%</span></td>
+                    <td>
+                        <span class="action-link" onclick="inspectCandidate('${c.candidate_id}')">
+                            <i data-lucide="code" style="width:14px;"></i> Inspect Profile
+                        </span>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        // Details inspect
+        async function inspectCandidate(id) {
+            try {
+                const response = await fetch(`/api/candidates/${id}`);
+                const res = await response.json();
+                if (res.success) {
+                    const modal = document.getElementById('detailsModal');
+                    document.getElementById('modalTitle').textContent = `Full Canonical Candidate Record: ${res.candidate.candidate_id}`;
+                    document.getElementById('modalJsonDisplay').textContent = JSON.stringify(res.candidate, null, 2);
+                    modal.style.display = 'flex';
+                } else {
+                    showToast(`Error: ${res.error}`, true);
+                }
+            } catch (err) {
+                showToast(`Network error: ${err.message}`, true);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside content
+        window.onclick = function(e) {
+            const modal = document.getElementById('detailsModal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        }
+
+
+        function loadTemplate(name, activeBtnEl) {
+            // Update active state in buttons
+            const btns = document.querySelectorAll('.template-picker .template-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+            // activeBtnEl is passed when clicked manually; guard against missing event
+            if (activeBtnEl) {
+                activeBtnEl.classList.add('active');
+            } else {
+                // Activate the matching button by data attribute or first match
+                const matchBtn = Array.from(btns).find(b => b.getAttribute('data-template') === name);
+                if (matchBtn) matchBtn.classList.add('active');
+            }
+
+            const editor = document.getElementById('configEditor');
+            editor.value = JSON.stringify(templates[name], null, 2);
+        }
+
+        // Set default template on load — now handled in the single DOMContentLoaded above
+
+        // Run projection
+        async function generateProjection() {
+            const editor = document.getElementById('configEditor');
+            let configJson;
+            try {
+                configJson = JSON.parse(editor.value);
+            } catch (e) {
+                showToast("Invalid JSON syntax in config editor", true);
+                document.getElementById('projectedCode').textContent = `JSON Parse Error:\n${e.message}`;
+                document.getElementById('projectedCode').style.color = 'var(--danger-color)';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/project', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        config: configJson
+                    })
+                });
+                const res = await response.json();
+                
+                const codeDisplay = document.getElementById('projectedCode');
+                if (res.success) {
+                    codeDisplay.textContent = JSON.stringify(res.projected, null, 2);
+                    codeDisplay.style.color = '#34d399';
+                    showToast("Projection applied and schema validated!");
+                } else {
+                    codeDisplay.textContent = `Server Error during Projection:\n${res.error}`;
+                    codeDisplay.style.color = 'var(--danger-color)';
+                    showToast(`Projection failed: ${res.error}`, true);
+                }
+            } catch (err) {
+                showToast(`Project failed: ${err.message}`, true);
+            }
+        }
+
+        function copyProjected() {
+            const code = document.getElementById('projectedCode').textContent;
+            navigator.clipboard.writeText(code);
+            showToast("Copied projected JSON output to clipboard!");
+        }
+
+        function downloadProjected() {
+            const code = document.getElementById('projectedCode').textContent;
+            const blob = new Blob([code], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "projected_candidates.json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("Downloaded projected candidate JSON.");
+        }
+    </script>
+</body>
+</html>
