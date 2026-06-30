@@ -37,7 +37,7 @@ A multi-source, config-driven candidate profile transformer and identity resolut
 
 ```bash
 git clone <repo-url>
-cd muththa_assign
+cd EightfoldAI_Data_Transformer
 pip install -r requirements.txt
 ```
 
@@ -66,7 +66,7 @@ python3 verify_pipeline.py
 ## 📁 Project Structure
 
 ```
-muththa_assign/
+EightfoldAI_Data_Transformer/
 ├── run.py                    # Flask entry point (port 8080)
 ├── requirements.txt          # Python dependencies
 ├── verify_pipeline.py        # End-to-end verification script
@@ -109,7 +109,7 @@ muththa_assign/
 │   ├── recruiter_export.csv  # Sample CSV (4 candidates)
 │   ├── ats_candidates.json   # Sample ATS JSON (2 candidates)
 │   ├── recruiter_notes.txt   # Sample plain-text notes
-│   └── surya.pdf             # Sample resume PDF
+│   └── Kanimuthu AR M_23CS076.pdf             # Sample resume PDF
 │
 ├── tests/
 │   └── ...                   # pytest unit tests
@@ -221,7 +221,6 @@ Upload both sample files and run the pipeline to see:
 - **Alice Smith** — merged by email (`alice@example.com`) from CSV + ATS JSON
 - **Bob Johnson** — merged by phone fallback (`+15559876543`), no email in CSV
 - **Charlie Brown** — standalone candidate (unique to CSV)
-- **Kanna Bear** — standalone candidate (CSV only)
 
 Each profile includes full **provenance** (which source each field came from) and **confidence scores** per field and overall.
 
