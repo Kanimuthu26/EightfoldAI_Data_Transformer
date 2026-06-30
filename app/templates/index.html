@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,11 @@
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
-    
+
     <style>
         :root {
             --bg-color: #0b0f19;
@@ -40,7 +43,7 @@
             font-family: var(--font-inter);
             min-height: 100vh;
             overflow-x: hidden;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 45%);
             background-attachment: fixed;
@@ -204,7 +207,8 @@
             background: rgba(255, 255, 255, 0.01);
         }
 
-        .dropzone:hover, .dropzone.dragover {
+        .dropzone:hover,
+        .dropzone.dragover {
             border-color: var(--accent-color);
             background: rgba(99, 102, 241, 0.04);
         }
@@ -239,8 +243,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text-glow {
@@ -253,8 +262,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
+
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
 
         .btn {
@@ -308,7 +324,8 @@
             background: linear-gradient(135deg, #4f46e5, #7c3aed);
         }
 
-        .btn:disabled, .btn-gradient:disabled {
+        .btn:disabled,
+        .btn-gradient:disabled {
             opacity: 0.4;
             cursor: not-allowed;
             pointer-events: none;
@@ -578,7 +595,8 @@
             transition: background 0.2s, color 0.2s;
         }
 
-        .template-btn:hover, .template-btn.active {
+        .template-btn:hover,
+        .template-btn.active {
             background: rgba(99, 102, 241, 0.15);
             color: #a5b4fc;
             border-color: rgba(99, 102, 241, 0.3);
@@ -713,9 +731,11 @@
             0% {
                 box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
             }
+
             70% {
                 box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
             }
+
             100% {
                 box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
             }
@@ -731,7 +751,7 @@
             border-radius: 8px;
             padding: 1rem 1.5rem;
             color: white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             z-index: 10000;
             display: flex;
             align-items: center;
@@ -747,6 +767,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <header>
@@ -769,9 +790,9 @@
     </header>
 
     <main class="main-container">
-        
+
         <div class="dashboard-grid">
-            
+
             <!-- Ingestion Panel -->
             <div class="glass-card">
                 <div class="card-header">
@@ -779,21 +800,24 @@
                         <i data-lucide="upload-cloud" style="color: var(--accent-color);"></i> Ingest Data Sources
                     </h2>
                 </div>
-                
+
                 <div class="dropzone" id="fileDropzone">
                     <i data-lucide="file-text" class="dropzone-icon" style="width: 48px; height: 48px;"></i>
                     <p style="font-weight: 500;">Drag & Drop Source Files Here</p>
-                    <p style="font-size: 0.8rem; color: var(--text-secondary);">CSV, JSON (ATS), TXT (Notes), PDF or DOCX (Resumes)</p>
-                    <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()" style="margin-top: 0.5rem;">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">CSV, JSON (ATS), TXT (Notes), PDF or
+                        DOCX (Resumes)</p>
+                    <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()"
+                        style="margin-top: 0.5rem;">
                         Browse Files
                     </button>
-                    <input type="file" id="fileInput" style="display: none;" multiple>
                 </div>
+                <input type="file" id="fileInput" style="display: none;" multiple>
 
                 <div class="form-group" style="margin-top: 1.5rem;">
                     <label class="form-label">Ingest Profile URL (GitHub / LinkedIn)</label>
                     <div style="display: flex; gap: 0.5rem;">
-                        <input type="url" id="urlInput" class="form-input" placeholder="https://github.com/username or https://linkedin.com/in/username">
+                        <input type="url" id="urlInput" class="form-input"
+                            placeholder="https://github.com/username or https://linkedin.com/in/username">
                         <button class="btn" onclick="ingestUrl()">Ingest URL</button>
                     </div>
                 </div>
@@ -810,14 +834,16 @@
                     </div>
 
                     <div class="source-list" id="sourceList">
-                        <div style="color: var(--text-secondary); text-align: center; padding: 2rem; font-size: 0.9rem;">
+                        <div
+                            style="color: var(--text-secondary); text-align: center; padding: 2rem; font-size: 0.9rem;">
                             No sources ingested yet. Upload files or paste URLs.
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="form-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <div class="form-label"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <span>Source Priority Conflict Resolution Order</span>
                         <span style="font-size: 0.75rem; font-style: italic;">ATS > CSV > Resume > Notes</span>
                     </div>
@@ -883,8 +909,10 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-secondary);">
-                                    Unification pipeline has not been executed yet. Ingest sources and hit 'Run Pipeline'.
+                                <td colspan="7"
+                                    style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                                    Unification pipeline has not been executed yet. Ingest sources and hit 'Run
+                                    Pipeline'.
                                 </td>
                             </tr>
                         </tbody>
@@ -896,7 +924,8 @@
             <div class="glass-card candidate-card" style="margin-top: 1rem;">
                 <div class="card-header">
                     <h2 class="card-title">
-                        <i data-lucide="sliders" style="color: #8b5cf6;"></i> Layer 3: Dynamic Projection & Schema Verification
+                        <i data-lucide="sliders" style="color: #8b5cf6;"></i> Layer 3: Dynamic Projection & Schema
+                        Verification
                     </h2>
                 </div>
 
@@ -904,11 +933,15 @@
                     <div class="config-editor-pane">
                         <div class="form-label">Select Projection View Template:</div>
                         <div class="template-picker">
-                            <button class="template-btn active" data-template="full" onclick="loadTemplate('full', this)">Full View</button>
-                            <button class="template-btn" data-template="skills" onclick="loadTemplate('skills', this)">Developer Skills Matrix</button>
-                            <button class="template-btn" data-template="contact" onclick="loadTemplate('contact', this)">Simple Contact Directory</button>
+                            <button class="template-btn active" data-template="full"
+                                onclick="loadTemplate('full', this)">Full View</button>
+                            <button class="template-btn" data-template="skills"
+                                onclick="loadTemplate('skills', this)">Developer Skills Matrix</button>
+                            <button class="template-btn" data-template="contact"
+                                onclick="loadTemplate('contact', this)">Simple Contact Directory</button>
                         </div>
-                        <label class="form-label" style="margin-top: 0.5rem;">Edit Runtime Projection Config (JSON):</label>
+                        <label class="form-label" style="margin-top: 0.5rem;">Edit Runtime Projection Config
+                            (JSON):</label>
                         <textarea class="code-editor" id="configEditor" spellcheck="false"></textarea>
                         <button class="btn" style="width: 100%; font-size: 1rem;" onclick="generateProjection()">
                             <i data-lucide="sparkles"></i> Project & Validate Output
@@ -919,11 +952,15 @@
                         <div class="viewer-header">
                             <span class="viewer-title">PROJECTED_VALIDATED_OUTPUT.json</span>
                             <div class="viewer-actions">
-                                <button class="template-btn" onclick="copyProjected()"><i data-lucide="copy" style="width:14px; display:inline; vertical-align:middle;"></i> Copy</button>
-                                <button class="template-btn" onclick="downloadProjected()"><i data-lucide="download" style="width:14px; display:inline; vertical-align:middle;"></i> Download</button>
+                                <button class="template-btn" onclick="copyProjected()"><i data-lucide="copy"
+                                        style="width:14px; display:inline; vertical-align:middle;"></i> Copy</button>
+                                <button class="template-btn" onclick="downloadProjected()"><i data-lucide="download"
+                                        style="width:14px; display:inline; vertical-align:middle;"></i>
+                                    Download</button>
                             </div>
                         </div>
-                        <pre class="code-display" id="projectedCode">Run the projector to preview unified configuration outputs here...</pre>
+                        <pre class="code-display"
+                            id="projectedCode">Run the projector to preview unified configuration outputs here...</pre>
                     </div>
                 </div>
             </div>
@@ -940,7 +977,8 @@
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <pre id="modalJsonDisplay" style="background:#06080e; padding:1.5rem; border-radius:8px; border: 1px solid var(--card-border); color: #34d399; font-family: var(--font-mono); font-size:0.85rem; overflow:auto; max-height: 60vh;"></pre>
+                <pre id="modalJsonDisplay"
+                    style="background:#06080e; padding:1.5rem; border-radius:8px; border: 1px solid var(--card-border); color: #34d399; font-family: var(--font-mono); font-size:0.85rem; overflow:auto; max-height: 60vh;"></pre>
             </div>
         </div>
     </div>
@@ -1067,7 +1105,7 @@
             // Swap
             priorityOrder[idx] = priorityOrder[targetIdx];
             priorityOrder[targetIdx] = item;
-            
+
             renderPriorityList();
         }
 
@@ -1092,7 +1130,7 @@
         async function handleFiles(files) {
             if (files.length === 0) return;
             toggleDropzoneLoading(true, "Parsing using AI & extracting info...");
-            
+
             for (let i = 0; i < files.length; i++) {
                 const formData = new FormData();
                 formData.append('file', files[i]);
@@ -1103,11 +1141,11 @@
                         body: formData
                     });
                     const res = await response.json();
-                    
+
                     if (res.success) {
                         // Deduplicate: remove old card if same file re-uploaded
                         registerSource(res);
-                        showToast(`✓ Re-ingested: ${res.filename_or_url}` );
+                        showToast(`✓ Re-ingested: ${res.filename_or_url}`);
                     } else {
                         showToast(`Ingestion failed: ${res.error}`, true);
                     }
@@ -1115,6 +1153,13 @@
                     showToast(`Network error: ${err.message}`, true);
                 }
             }
+
+            // Reset file input value to allow uploading the same file again
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+
             toggleDropzoneLoading(false);
             checkPipelineStatus();
         }
@@ -1130,11 +1175,11 @@
             try {
                 const response = await fetch('/api/ingest', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url: url })
                 });
                 const res = await response.json();
-                
+
                 if (res.success) {
                     registerSource(res);
                     urlInput.value = '';
@@ -1220,7 +1265,7 @@
             ingestedSources = ingestedSources.filter(s => s !== path);
             el.closest('.source-item').remove();
             document.getElementById('sourceCount').textContent = `${ingestedSources.length} loaded`;
-            
+
             if (ingestedSources.length === 0) {
                 document.getElementById('sourceList').innerHTML = `
                     <div style="color: var(--text-secondary); text-align: center; padding: 2rem; font-size: 0.9rem;">
@@ -1240,44 +1285,44 @@
             const btn = document.getElementById('btnRunPipeline');
             btn.disabled = true;
             btn.innerHTML = `<i data-lucide="loader" class="animate-spin"></i> Executing Pipeline...`;
-            
+
             // Reset and animate steps
             resetFlowSteps();
-            
+
             try {
                 // Ingest state
                 setStepActive('step-ingest');
                 await sleep(500);
                 setStepCompleted('step-ingest', 'line-1');
-                
+
                 // Normalization state
                 setStepActive('step-normalize');
                 await sleep(500);
                 setStepCompleted('step-normalize', 'line-2');
-                
+
                 // Match indexing
                 setStepActive('step-match');
                 await sleep(600);
                 setStepCompleted('step-match', 'line-3');
-                
+
                 // Merge state
                 setStepActive('step-merge');
                 await sleep(500);
                 setStepCompleted('step-merge', 'line-4');
-                
+
                 // Confidence scoring
                 setStepActive('step-confidence');
 
                 const response = await fetch('/api/run-pipeline', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         inputs: ingestedSources,
                         priority_list: priorityOrder
                     })
                 });
                 const res = await response.json();
-                
+
                 if (res.success) {
                     setStepCompleted('step-confidence');
                     candidatesList = res.candidates;
@@ -1326,7 +1371,7 @@
         function renderCandidates(candidates) {
             const body = document.querySelector('#candidateTable tbody');
             body.innerHTML = '';
-            
+
             if (candidates.length === 0) {
                 body.innerHTML = `
                     <tr>
@@ -1343,14 +1388,14 @@
 
             candidates.forEach(c => {
                 const tr = document.createElement('tr');
-                
+
                 // Formats emails and phones
                 const emailStr = c.emails && c.emails.length > 0 ? c.emails.join(', ') : '<span style="color:var(--text-secondary)">null</span>';
                 const phoneStr = c.phones && c.phones.length > 0 ? c.phones.join(', ') : '<span style="color:var(--text-secondary)">null</span>';
                 const yoeStr = c.years_experience !== null ? c.years_experience : '0';
-                
+
                 const confClass = c.overall_confidence < 0.7 ? 'badge-confidence low' : 'badge-confidence';
-                
+
                 tr.innerHTML = `
                     <td><code style="font-family:var(--font-mono); font-size:0.8rem;">${c.candidate_id}</code></td>
                     <td><span class="cand-name">${c.full_name || 'Anonymous'}</span></td>
@@ -1392,7 +1437,7 @@
         }
 
         // Close modal when clicking outside content
-        window.onclick = function(e) {
+        window.onclick = function (e) {
             const modal = document.getElementById('detailsModal');
             if (e.target === modal) {
                 closeModal();
@@ -1435,13 +1480,13 @@
             try {
                 const response = await fetch('/api/project', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         config: configJson
                     })
                 });
                 const res = await response.json();
-                
+
                 const codeDisplay = document.getElementById('projectedCode');
                 if (res.success) {
                     codeDisplay.textContent = JSON.stringify(res.projected, null, 2);
@@ -1465,7 +1510,7 @@
 
         function downloadProjected() {
             const code = document.getElementById('projectedCode').textContent;
-            const blob = new Blob([code], {type: "application/json"});
+            const blob = new Blob([code], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1478,4 +1523,5 @@
         }
     </script>
 </body>
+
 </html>
