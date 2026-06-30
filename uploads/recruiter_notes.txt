@@ -1,6 +1,0 @@
-Candidate Name: Charlie Brown
-Cell phone: 555-555-5555
-Email address: charlie@example.com
-Charlie is a strong backend developer. He knows Python, Golang, and SQL.
-He worked at Amazon as a Backend Engineer.
-Education: BS in Computer Science from Berkeley (2025).
