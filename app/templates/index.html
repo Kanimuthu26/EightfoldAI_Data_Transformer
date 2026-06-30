@@ -1252,7 +1252,7 @@
                 </div>
                 <div style="display:flex; align-items:center; gap: 0.5rem;">
                     <span style="font-size:0.8rem; color: var(--text-secondary);">${source.candidates_count} candidate${source.candidates_count !== 1 ? 's' : ''}</span>
-                    <i data-lucide="trash-2" class="source-remove" onclick="removeSource(this, '${source.filepath_or_url}')"></i>
+                    <i data-lucide="trash-2" class="source-remove" onclick="removeSource(this)"></i>
                 </div>
             `;
             container.appendChild(item);
@@ -1261,7 +1261,8 @@
             lucide.createIcons();
         }
 
-        function removeSource(el, path) {
+        function removeSource(el) {
+            const path = el.closest('.source-item').getAttribute('data-path');
             ingestedSources = ingestedSources.filter(s => s !== path);
             el.closest('.source-item').remove();
             document.getElementById('sourceCount').textContent = `${ingestedSources.length} loaded`;
